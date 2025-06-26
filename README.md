@@ -23,7 +23,7 @@ pet-store/
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.21+ (for local development)
+- Go 1.23+ (for local development)
 
 ### Start the Application
 ```bash

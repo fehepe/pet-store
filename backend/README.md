@@ -6,7 +6,7 @@ A complete GraphQL API for managing a pet store with merchant and customer funct
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.21+ (for local development)
+- Go 1.23+ (for local development)
 
 ### 1. Start the Application
 ```bash

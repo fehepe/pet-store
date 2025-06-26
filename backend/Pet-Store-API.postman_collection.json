@@ -1,0 +1,378 @@
+{
+	"info": {
+		"name": "Pet Store API",
+		"description": "GraphQL API for pet store management",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"auth": {
+		"type": "basic",
+		"basic": [
+			{
+				"key": "username",
+				"value": "merchant1",
+				"type": "string"
+			},
+			{
+				"key": "password",
+				"value": "merchant123",
+				"type": "string"
+			}
+		]
+	},
+	"item": [
+		{
+			"name": "Merchant Operations",
+			"item": [
+				{
+					"name": "Create Store",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation { createStore(input: { name: \\\"My Pet Store\\\" }) { id name createdAt } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Get My Store",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"{ myStore { id name createdAt } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Create Pet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation { createPet(input: { name: \\\"Fluffy\\\", species: Cat, age: 2, pictureUrl: \\\"https://example.com/cat.jpg\\\", description: \\\"Cute orange cat\\\", breederName: \\\"John Doe\\\", breederEmail: \\\"john@example.com\\\" }) { id name species age status createdAt } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "List All Pets",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"{ listPets { edges { id name species age status } totalCount } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Get Unsold Pets",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"{ unsoldPets { edges { id name species status } totalCount } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Get Sold Pets",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"{ soldPets(startDate: \\\"2025-01-01T00:00:00Z\\\", endDate: \\\"2025-12-31T23:59:59Z\\\") { edges { id name species status } totalCount } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Delete Pet",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation { deletePet(id: \\\"{{pet_id}}\\\") }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Customer Operations",
+			"item": [
+				{
+					"name": "Get Store by ID",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "customer1",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "customer123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"{ getStoreByID(id: \\\"{{store_id}}\\\") { id name createdAt } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Browse Available Pets",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "customer1",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "customer123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"{ availablePets(storeID: \\\"{{store_id}}\\\") { edges { id name species age description } totalCount } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Purchase Single Pet",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "customer1",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "customer123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation { purchasePet(petID: \\\"{{pet_id}}\\\") { id customerID totalPets createdAt pets { id name status } } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				},
+				{
+					"name": "Purchase Multiple Pets",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{
+									"key": "username",
+									"value": "customer1",
+									"type": "string"
+								},
+								{
+									"key": "password",
+									"value": "customer123",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"mutation { purchasePets(petIDs: [\\\"{{pet_id_1}}\\\", \\\"{{pet_id_2}}\\\"]) { id customerID totalPets createdAt pets { id name status } } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Shared Operations",
+			"item": [
+				{
+					"name": "Get Pet by ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"query\": \"{ getPet(id: \\\"{{pet_id}}\\\") { id name species age description status breederName createdAt } }\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/graphql",
+							"host": ["{{base_url}}"],
+							"path": ["graphql"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "store_id",
+			"value": "replace-with-actual-store-id",
+			"type": "string"
+		},
+		{
+			"key": "pet_id",
+			"value": "replace-with-actual-pet-id",
+			"type": "string"
+		},
+		{
+			"key": "pet_id_1",
+			"value": "replace-with-actual-pet-id-1",
+			"type": "string"
+		},
+		{
+			"key": "pet_id_2",
+			"value": "replace-with-actual-pet-id-2",
+			"type": "string"
+		}
+	]
+}

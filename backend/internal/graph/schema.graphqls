@@ -1,0 +1,105 @@
+scalar Time
+scalar UUID
+
+enum PetSpecies {
+  Cat
+  Dog
+  Frog
+}
+
+enum PetStatus {
+  available
+  sold
+}
+
+type Pet {
+  id: UUID!
+  name: String!
+  species: PetSpecies!
+  age: Int!
+  pictureUrl: String
+  description: String
+  breederName: String!
+  breederEmail: String!
+  status: PetStatus!
+  createdAt: Time!
+}
+
+type Store {
+  id: UUID!
+  name: String!
+  createdAt: Time!
+}
+
+type Order {
+  id: UUID!
+  customerID: String!
+  pets: [Pet!]!
+  totalPets: Int!
+  createdAt: Time!
+}
+
+type PetConnection {
+  edges: [Pet!]!
+  pageInfo: PageInfo!
+  totalCount: Int!
+}
+
+type PageInfo {
+  hasNextPage: Boolean!
+  hasPreviousPage: Boolean!
+  startCursor: String
+  endCursor: String
+}
+
+input CreatePetInput {
+  name: String!
+  species: PetSpecies!
+  age: Int!
+  pictureUrl: String
+  description: String
+  breederName: String!
+  breederEmail: String!
+}
+
+input CreateStoreInput {
+  name: String!
+}
+
+input PetFilterInput {
+  status: PetStatus
+  startDate: Time
+  endDate: Time
+}
+
+input PaginationInput {
+  first: Int
+  after: String
+  last: Int
+  before: String
+}
+
+type Query {
+  # Merchant queries
+  myStore: Store!
+  listPets(filter: PetFilterInput, pagination: PaginationInput): PetConnection!
+  getPet(id: UUID!): Pet
+  soldPets(startDate: Time!, endDate: Time!, pagination: PaginationInput): PetConnection!
+  unsoldPets(pagination: PaginationInput): PetConnection!
+  
+  # Customer queries
+  availablePets(storeID: UUID!, pagination: PaginationInput): PetConnection!
+  getStoreByID(id: UUID!): Store
+}
+
+type Mutation {
+  # Merchant mutations
+  createStore(input: CreateStoreInput!): Store!
+  createPet(input: CreatePetInput!): Pet!
+  deletePet(id: UUID!): Boolean!
+  
+  # Customer mutations
+  purchasePet(petID: UUID!): Order!
+  purchasePets(petIDs: [UUID!]!): Order!
+}
+

@@ -52,9 +52,9 @@ func setupRouter(deps *app.Dependencies) chi.Router {
 	fileServer := http.FileServer(http.Dir(deps.Config.UploadDir))
 	router.Handle("/uploads/*", http.StripPrefix("/uploads/", fileServer))
 
-	// GraphQL endpoints with authentication
+	// GraphQL endpoints with conditional authentication
 	router.Route("/graphql", func(r chi.Router) {
-		r.Use(auth.BasicAuthMiddleware)
+		r.Use(auth.ConditionalAuthMiddleware)
 		srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: deps.Resolver}))
 		srv.AddTransport(transport.POST{})
 		srv.AddTransport(transport.GET{})

@@ -18,7 +18,6 @@ import (
 type StoreServiceInterface interface {
 	CreateStore(ctx context.Context, input models.CreateStoreInput) (*models.Store, error)
 	GetStoreByOwnerID(ctx context.Context, ownerID string) (*models.Store, error)
-	GetStoreByID(ctx context.Context, storeID uuid.UUID) (*models.Store, error)
 }
 
 // StoreService implements StoreServiceInterface with improved error handling and validation
@@ -100,21 +99,13 @@ func (s *StoreService) GetStoreByOwnerID(ctx context.Context, ownerID string) (*
 	return storePtr, nil
 }
 
-// GetStoreByID retrieves a store by ID with caching
-func (s *StoreService) GetStoreByID(ctx context.Context, storeID uuid.UUID) (*models.Store, error) {
-	cacheKey := cache.StoreCacheKey(storeID.String())
-	var store models.Store
-	if err := s.cache.Get(ctx, cacheKey, &store); err == nil {
-		return &store, nil
-	}
 
-	storePtr, err := s.repo.GetByID(ctx, storeID)
+func (s *StoreService) ListAllStores(ctx context.Context) ([]*models.Store, error) {
+	stores, err := s.repo.ListAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	_ = s.cache.Set(ctx, cacheKey, storePtr, 10*time.Minute)
-
-	return storePtr, nil
+	return stores, nil
 }
 

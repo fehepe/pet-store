@@ -190,17 +190,23 @@ func (r *Resolver) AvailablePets(ctx context.Context, storeID uuid.UUID, paginat
 	}, nil
 }
 
-func (r *Resolver) GetStoreByID(ctx context.Context, id uuid.UUID) (*model.Store, error) {
-	store, err := r.storeService.GetStoreByID(ctx, id)
+
+func (r *Resolver) ListStores(ctx context.Context) ([]*model.Store, error) {
+	stores, err := r.storeService.ListAllStores(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &model.Store{
-		ID:        store.ID,
-		Name:      store.Name,
-		CreatedAt: store.CreatedAt,
-	}, nil
+	var result []*model.Store
+	for _, store := range stores {
+		result = append(result, &model.Store{
+			ID:        store.ID,
+			Name:      store.Name,
+			CreatedAt: store.CreatedAt,
+		})
+	}
+
+	return result, nil
 }
 
 func (r *Resolver) SoldPets(ctx context.Context, startDate time.Time, endDate time.Time, pagination *model.PaginationInput) (*model.PetConnection, error) {

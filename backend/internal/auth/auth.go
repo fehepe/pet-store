@@ -3,7 +3,9 @@ package auth
 import (
 	"context"
 	"encoding/base64"
+	"encoding/json"
 	"errors"
+	"io"
 	"net/http"
 	"strings"
 
@@ -42,6 +44,10 @@ var users = map[string]struct {
 		PasswordHash: "$2a$10$YourHashedPasswordHere", // Password: customer123
 		Type:         UserTypeCustomer,
 	},
+	"customer2": {
+		PasswordHash: "$2a$10$YourHashedPasswordHere", // Password: customer123
+		Type:         UserTypeCustomer,
+	},
 }
 
 func init() {
@@ -53,6 +59,13 @@ func init() {
 		Type:         UserTypeMerchant,
 	}
 	users["customer1"] = struct {
+		PasswordHash string
+		Type         UserType
+	}{
+		PasswordHash: hashPassword("customer123"),
+		Type:         UserTypeCustomer,
+	}
+	users["customer2"] = struct {
 		PasswordHash string
 		Type         UserType
 	}{
@@ -149,4 +162,78 @@ func RequireCustomer(ctx context.Context) error {
 		return errors.New("customer access required")
 	}
 	return nil
+}
+
+// ConditionalAuthMiddleware allows certain public queries without authentication
+func ConditionalAuthMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Read the request body to check for public queries
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Failed to read request body", http.StatusBadRequest)
+			return
+		}
+		r.Body = io.NopCloser(strings.NewReader(string(body)))
+
+		// Parse the GraphQL request
+		var gqlRequest struct {
+			Query string `json:"query"`
+		}
+		if err := json.Unmarshal(body, &gqlRequest); err != nil {
+			http.Error(w, "Invalid JSON", http.StatusBadRequest)
+			return
+		}
+
+		// Check if this is a public query (listStores)
+		if strings.Contains(gqlRequest.Query, "listStores") && !strings.Contains(gqlRequest.Query, "mutation") {
+			// Skip authentication for listStores query
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// For all other queries, require authentication
+		authHeader := r.Header.Get("Authorization")
+		if authHeader == "" {
+			w.Header().Set("WWW-Authenticate", `Basic realm="Restricted"`)
+			http.Error(w, "Authorization required", http.StatusUnauthorized)
+			return
+		}
+
+		const prefix = "Basic "
+		if !strings.HasPrefix(authHeader, prefix) {
+			http.Error(w, "Invalid authorization header", http.StatusUnauthorized)
+			return
+		}
+
+		decoded, err := base64.StdEncoding.DecodeString(authHeader[len(prefix):])
+		if err != nil {
+			http.Error(w, "Invalid authorization header", http.StatusUnauthorized)
+			return
+		}
+
+		credentials := string(decoded)
+		parts := strings.SplitN(credentials, ":", 2)
+		if len(parts) != 2 {
+			http.Error(w, "Invalid credentials format", http.StatusUnauthorized)
+			return
+		}
+
+		username, password := parts[0], parts[1]
+		user, exists := users[username]
+		if !exists {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+
+		if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+			http.Error(w, "Invalid credentials", http.StatusUnauthorized)
+			return
+		}
+
+		// Add user info to context
+		ctx := context.WithValue(r.Context(), UserContextKey, username)
+		ctx = context.WithValue(ctx, UserTypeContextKey, user.Type)
+
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
 }

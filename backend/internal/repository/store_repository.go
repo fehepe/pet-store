@@ -16,6 +16,7 @@ type StoreRepositoryInterface interface {
 	Create(ctx context.Context, store *models.Store) error
 	GetByID(ctx context.Context, storeID uuid.UUID) (*models.Store, error)
 	GetByOwnerID(ctx context.Context, ownerID string) (*models.Store, error)
+	ListAll(ctx context.Context) ([]*models.Store, error)
 }
 
 // StoreRepository implements StoreRepositoryInterface
@@ -88,4 +89,36 @@ func (r *StoreRepository) GetByOwnerID(ctx context.Context, ownerID string) (*mo
 	}
 
 	return &store, nil
+}
+
+// ListAll retrieves all stores
+func (r *StoreRepository) ListAll(ctx context.Context) ([]*models.Store, error) {
+	query := `
+		SELECT id, name, owner_id, created_at, updated_at
+		FROM stores
+		ORDER BY name ASC`
+
+	rows, err := r.DB().QueryContext(ctx, query)
+	if err != nil {
+		return nil, fmt.Errorf("failed to query stores: %w", err)
+	}
+	defer rows.Close()
+
+	var stores []*models.Store
+	for rows.Next() {
+		var store models.Store
+		err := rows.Scan(
+			&store.ID, &store.Name, &store.OwnerID, &store.CreatedAt, &store.UpdatedAt,
+		)
+		if err != nil {
+			return nil, fmt.Errorf("failed to scan store: %w", err)
+		}
+		stores = append(stores, &store)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("error iterating store rows: %w", err)
+	}
+
+	return stores, nil
 }

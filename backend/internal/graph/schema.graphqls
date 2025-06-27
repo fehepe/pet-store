@@ -89,7 +89,7 @@ type Query {
   
   # Customer queries
   availablePets(storeID: UUID!, pagination: PaginationInput): PetConnection!
-  getStoreByID(id: UUID!): Store
+  listStores: [Store!]!
 }
 
 type Mutation {

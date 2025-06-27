@@ -1,378 +1,345 @@
 {
-	"info": {
-		"name": "Pet Store API",
-		"description": "GraphQL API for pet store management",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"auth": {
-		"type": "basic",
-		"basic": [
-			{
-				"key": "username",
-				"value": "merchant1",
-				"type": "string"
-			},
-			{
-				"key": "password",
-				"value": "merchant123",
-				"type": "string"
-			}
-		]
-	},
-	"item": [
-		{
-			"name": "Merchant Operations",
-			"item": [
-				{
-					"name": "Create Store",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation { createStore(input: { name: \\\"My Pet Store\\\" }) { id name createdAt } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Get My Store",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"{ myStore { id name createdAt } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Create Pet",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation { createPet(input: { name: \\\"Fluffy\\\", species: Cat, age: 2, pictureUrl: \\\"https://example.com/cat.jpg\\\", description: \\\"Cute orange cat\\\", breederName: \\\"John Doe\\\", breederEmail: \\\"john@example.com\\\" }) { id name species age status createdAt } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "List All Pets",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"{ listPets { edges { id name species age status } totalCount } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Get Unsold Pets",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"{ unsoldPets { edges { id name species status } totalCount } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Get Sold Pets",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"{ soldPets(startDate: \\\"2025-01-01T00:00:00Z\\\", endDate: \\\"2025-12-31T23:59:59Z\\\") { edges { id name species status } totalCount } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Delete Pet",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation { deletePet(id: \\\"{{pet_id}}\\\") }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Customer Operations",
-			"item": [
-				{
-					"name": "Get Store by ID",
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "customer1",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "customer123",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"{ getStoreByID(id: \\\"{{store_id}}\\\") { id name createdAt } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Browse Available Pets",
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "customer1",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "customer123",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"{ availablePets(storeID: \\\"{{store_id}}\\\") { edges { id name species age description } totalCount } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Purchase Single Pet",
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "customer1",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "customer123",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation { purchasePet(petID: \\\"{{pet_id}}\\\") { id customerID totalPets createdAt pets { id name status } } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				},
-				{
-					"name": "Purchase Multiple Pets",
-					"request": {
-						"auth": {
-							"type": "basic",
-							"basic": [
-								{
-									"key": "username",
-									"value": "customer1",
-									"type": "string"
-								},
-								{
-									"key": "password",
-									"value": "customer123",
-									"type": "string"
-								}
-							]
-						},
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"mutation { purchasePets(petIDs: [\\\"{{pet_id_1}}\\\", \\\"{{pet_id_2}}\\\"]) { id customerID totalPets createdAt pets { id name status } } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				}
-			]
-		},
-		{
-			"name": "Shared Operations",
-			"item": [
-				{
-					"name": "Get Pet by ID",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n  \"query\": \"{ getPet(id: \\\"{{pet_id}}\\\") { id name species age description status breederName createdAt } }\"\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/graphql",
-							"host": ["{{base_url}}"],
-							"path": ["graphql"]
-						}
-					}
-				}
-			]
-		}
-	],
-	"variable": [
-		{
-			"key": "base_url",
-			"value": "http://localhost:8080",
-			"type": "string"
-		},
-		{
-			"key": "store_id",
-			"value": "replace-with-actual-store-id",
-			"type": "string"
-		},
-		{
-			"key": "pet_id",
-			"value": "replace-with-actual-pet-id",
-			"type": "string"
-		},
-		{
-			"key": "pet_id_1",
-			"value": "replace-with-actual-pet-id-1",
-			"type": "string"
-		},
-		{
-			"key": "pet_id_2",
-			"value": "replace-with-actual-pet-id-2",
-			"type": "string"
-		}
-	]
+  "info": {
+    "name": "Pet Store API",
+    "description": "GraphQL API collection for the Pet Store application with actual endpoints only.",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "graphqlEndpoint",
+      "value": "{{baseUrl}}/graphql",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🌍 Public Endpoints",
+      "description": "Public endpoints that don't require authentication",
+      "item": [
+        {
+          "name": "List All Stores",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ListStores {\\n    listStores {\\n      id\\n      name\\n      createdAt\\n    }\\n  }\"\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Get all available stores for customer selection"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Customer Operations",
+      "description": "Customer operations (authentication optional in test mode)",
+      "auth": {
+        "type": "basic",
+        "basic": [
+          {
+            "key": "username",
+            "value": "customer1",
+            "type": "string"
+          },
+          {
+            "key": "password",
+            "value": "customer123",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Browse Available Pets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query GetAvailablePets($storeID: UUID!, $pagination: PaginationInput) {\\n    availablePets(storeID: $storeID, pagination: $pagination) {\\n      edges {\\n        id\\n        name\\n        species\\n        age\\n        pictureUrl\\n        description\\n        breederName\\n        status\\n        createdAt\\n      }\\n      pageInfo {\\n        hasNextPage\\n        hasPreviousPage\\n        startCursor\\n        endCursor\\n      }\\n      totalCount\\n    }\\n  }\",\n  \"variables\": {\n    \"storeID\": \"{{storeId}}\",\n    \"pagination\": {\n      \"first\": 10\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Browse available pets in a specific store (requires customer authentication)"
+          }
+        },
+        {
+          "name": "Purchase Single Pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation PurchasePet($petID: UUID!) {\\n    purchasePet(petID: $petID) {\\n      id\\n      customerID\\n      pets {\\n        id\\n        name\\n        species\\n        age\\n        pictureUrl\\n        description\\n        breederName\\n      }\\n      totalPets\\n      createdAt\\n    }\\n  }\",\n  \"variables\": {\n    \"petID\": \"{{samplePetId}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Purchase a single pet - replace PUT_ACTUAL_PET_ID_HERE with real pet ID"
+          }
+        },
+        {
+          "name": "Purchase Multiple Pets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation PurchasePets($petIDs: [UUID!]!) {\\n    purchasePets(petIDs: $petIDs) {\\n      id\\n      customerID\\n      pets {\\n        id\\n        name\\n        species\\n        age\\n        pictureUrl\\n        description\\n        breederName\\n      }\\n      totalPets\\n      createdAt\\n    }\\n  }\",\n  \"variables\": {\n    \"petIDs\": [\"{{samplePetId}}\"]\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Purchase multiple pets - replace with real pet IDs"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏪 Merchant Operations",
+      "description": "Merchant operations (authentication optional in test mode)",
+      "auth": {
+        "type": "basic",
+        "basic": [
+          {
+            "key": "username",
+            "value": "merchant1",
+            "type": "string"
+          },
+          {
+            "key": "password",
+            "value": "merchant123",
+            "type": "string"
+          }
+        ]
+      },
+      "item": [
+        {
+          "name": "Create Store",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreateStore($input: CreateStoreInput!) {\\n    createStore(input: $input) {\\n      id\\n      name\\n      createdAt\\n    }\\n  }\",\n  \"variables\": {\n    \"input\": {\n      \"name\": \"My New Pet Store\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Create a new store (one per merchant)"
+          }
+        },
+        {
+          "name": "List My Pets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query ListPets($filter: PetFilterInput, $pagination: PaginationInput) {\\n    listPets(filter: $filter, pagination: $pagination) {\\n      edges {\\n        id\\n        name\\n        species\\n        age\\n        pictureUrl\\n        description\\n        breederName\\n        breederEmail\\n        status\\n        createdAt\\n      }\\n      pageInfo {\\n        hasNextPage\\n        hasPreviousPage\\n        startCursor\\n        endCursor\\n      }\\n      totalCount\\n    }\\n  }\",\n  \"variables\": {\n    \"pagination\": {\n      \"first\": 10\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "List all pets in merchant's store"
+          }
+        },
+        {
+          "name": "Add New Pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation CreatePet($input: CreatePetInput!) {\\n    createPet(input: $input) {\\n      id\\n      name\\n      species\\n      age\\n      pictureUrl\\n      description\\n      breederName\\n      breederEmail\\n      status\\n      createdAt\\n    }\\n  }\",\n  \"variables\": {\n    \"input\": {\n      \"name\": \"Buddy\",\n      \"species\": \"Dog\",\n      \"age\": 2,\n      \"pictureUrl\": \"https://example.com/buddy.jpg\",\n      \"description\": \"Friendly golden retriever\",\n      \"breederName\": \"Happy Paws Breeders\",\n      \"breederEmail\": \"contact@happypaws.com\"\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Add a new pet to store inventory"
+          }
+        },
+        {
+          "name": "Get Pet Details",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query GetPet($id: UUID!) {\\n    getPet(id: $id) {\\n      id\\n      name\\n      species\\n      age\\n      pictureUrl\\n      description\\n      breederName\\n      breederEmail\\n      status\\n      createdAt\\n    }\\n  }\",\n  \"variables\": {\n    \"id\": \"{{samplePetId}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Get details of a specific pet - replace with real pet ID"
+          }
+        },
+        {
+          "name": "Delete Pet",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"mutation DeletePet($id: UUID!) {\\n    deletePet(id: $id)\\n  }\",\n  \"variables\": {\n    \"id\": \"{{samplePetId}}\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "Delete a pet from inventory - replace with real pet ID"
+          }
+        },
+        {
+          "name": "View Sold Pets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query SoldPets($startDate: Time!, $endDate: Time!, $pagination: PaginationInput) {\\n    soldPets(startDate: $startDate, endDate: $endDate, pagination: $pagination) {\\n      edges {\\n        id\\n        name\\n        species\\n        age\\n        pictureUrl\\n        description\\n        breederName\\n        breederEmail\\n        status\\n        createdAt\\n      }\\n      pageInfo {\\n        hasNextPage\\n        hasPreviousPage\\n        startCursor\\n        endCursor\\n      }\\n      totalCount\\n    }\\n  }\",\n  \"variables\": {\n    \"startDate\": \"2025-01-01T00:00:00Z\",\n    \"endDate\": \"2025-12-31T23:59:59Z\",\n    \"pagination\": {\n      \"first\": 10\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "View pets sold in a date range"
+          }
+        },
+        {
+          "name": "View Unsold Pets",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"query\": \"query UnsoldPets($pagination: PaginationInput) {\\n    unsoldPets(pagination: $pagination) {\\n      edges {\\n        id\\n        name\\n        species\\n        age\\n        pictureUrl\\n        description\\n        breederName\\n        breederEmail\\n        status\\n        createdAt\\n      }\\n      pageInfo {\\n        hasNextPage\\n        hasPreviousPage\\n        startCursor\\n        endCursor\\n      }\\n      totalCount\\n    }\\n  }\",\n  \"variables\": {\n    \"pagination\": {\n      \"first\": 10\n    }\n  }\n}"
+            },
+            "url": {
+              "raw": "{{graphqlEndpoint}}",
+              "host": ["{{graphqlEndpoint}}"]
+            },
+            "description": "View all unsold (available) pets"
+          }
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "// Set common headers",
+          "pm.request.headers.add({",
+          "    key: 'Content-Type',",
+          "    value: 'application/json'",
+          "});",
+          "",
+          "console.log('Request URL:', pm.request.url);",
+          "console.log('Request Body:', pm.request.body);"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "pm.test('Status code is 200', function () {",
+          "    pm.response.to.have.status(200);",
+          "});",
+          "",
+          "pm.test('Response has data field', function () {",
+          "    const jsonData = pm.response.json();",
+          "    pm.expect(jsonData).to.have.property('data');",
+          "});",
+          "",
+          "pm.test('No GraphQL errors', function () {",
+          "    const jsonData = pm.response.json();",
+          "    if (jsonData.errors) {",
+          "        console.log('GraphQL Errors:', jsonData.errors);",
+          "        pm.expect.fail('GraphQL errors found: ' + JSON.stringify(jsonData.errors));",
+          "    }",
+          "});",
+          "",
+          "console.log('Response:', JSON.stringify(pm.response.json(), null, 2));"
+        ]
+      }
+    }
+  ]
 }

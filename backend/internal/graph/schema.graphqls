@@ -81,7 +81,6 @@ input PaginationInput {
 
 type Query {
   # Merchant queries
-  myStore: Store!
   listPets(filter: PetFilterInput, pagination: PaginationInput): PetConnection!
   getPet(id: UUID!): Pet
   soldPets(startDate: Time!, endDate: Time!, pagination: PaginationInput): PetConnection!

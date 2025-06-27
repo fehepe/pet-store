@@ -184,11 +184,11 @@ func ConditionalAuthMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// For testing purposes, allow all queries but require auth for mutations
-		isMutation := strings.Contains(strings.ToLower(gqlRequest.Query), "mutation")
-		
-		if !isMutation {
-			// Skip authentication for all queries (testing mode)
+		queryLower := strings.ToLower(gqlRequest.Query)
+		isMutation := strings.Contains(queryLower, "mutation")
+		isPublicQuery := strings.Contains(queryLower, "liststores") ||
+			strings.Contains(queryLower, "availablepets")
+		if !isMutation && isPublicQuery {
 			next.ServeHTTP(w, r)
 			return
 		}

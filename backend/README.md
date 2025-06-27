@@ -1,18 +1,25 @@
-# 🐾 Pet Store GraphQL API
+# 📡 Pet Store GraphQL API Backend
 
-A complete GraphQL API for managing a pet store with merchant and customer functionality. Built with Go, PostgreSQL, Redis, and GraphQL.
+Complete GraphQL API backend for the Pet Store application with comprehensive merchant and customer functionality.
+
+## 🌐 Endpoint Information
+
+- **GraphQL Endpoint**: `http://localhost:8080/graphql`
+- **GraphQL Playground**: `http://localhost:8080/playground`
+- **Schema**: Available via introspection
+- **Authentication**: Basic HTTP Auth (for non-public endpoints)
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.23+ (for local development)
+- Go 1.24+ (for local development)
 
-### 1. Start the Application
+### Start the Backend
 ```bash
 # Clone the repository
 git clone https://github.com/fehepe/pet-store
-cd pet-store/backend
+cd pet-store
 
 # Start all services (PostgreSQL, Redis, Backend)
 docker-compose up -d
@@ -21,28 +28,24 @@ docker-compose up -d
 docker-compose ps
 ```
 
-### 2. Access the API
-- **GraphQL Playground**: [http://localhost:8080/playground](http://localhost:8080/playground)
-- **GraphQL Endpoint**: `http://localhost:8080/graphql`
-- **Health Check**: `http://localhost:8080/health`
+### Access Points
+- **🔍 GraphQL Playground**: http://localhost:8080/playground  
+- **📡 GraphQL API**: http://localhost:8080/graphql
+- **🏥 Health Check**: http://localhost:8080/health
 
-## 🔐 Authentication
+## 🔓 Public Endpoints
 
-The API uses **Basic Authentication** with predefined credentials:
+These endpoints are accessible without authentication and are used by the frontend application.
 
-| Role | Username | Password |
-|------|----------|----------|
-| **Merchant** | `merchant1` | `merchant123` |
-| **Customer** | `customer1` | `customer123` |
+### 📋 List Stores
 
-## 📋 Available Operations
+**Query**: `listStores`
+**Description**: Get all available stores for customer selection
+**Authentication**: None required
 
-### 🏪 Merchant Operations
-
-#### 1. Create Store
 ```graphql
-mutation CreateStore {
-  createStore(input: { name: "My Pet Paradise" }) {
+query ListStores {
+  listStores {
     id
     name
     createdAt
@@ -50,58 +53,45 @@ mutation CreateStore {
 }
 ```
 
-#### 2. Get My Store
-```graphql
-query MyStore {
-  myStore {
-    id
-    name
-    createdAt
+**Response**:
+```json
+{
+  "data": {
+    "listStores": [
+      {
+        "id": "123e4567-e89b-12d3-a456-426614174000",
+        "name": "Pet Paradise Store",
+        "createdAt": "2025-06-26T19:52:03.579789Z"
+      }
+    ]
   }
 }
 ```
 
-#### 3. Add Pet
-```graphql
-mutation CreatePet {
-  createPet(input: {
-    name: "Fluffy"
-    species: Cat
-    age: 2
-    pictureUrl: "https://example.com/cat.jpg"
-    description: "Adorable orange tabby cat"
-    breederName: "John Doe"
-    breederEmail: "john@example.com"
-  }) {
-    id
-    name
-    species
-    age
-    status
-    breederEmail
-    createdAt
-  }
-}
-```
+### 🐾 Browse Available Pets
 
-#### 4. List All Pets (with filters)
+**Query**: `availablePets`
+**Description**: Browse available pets in a specific store with pagination
+**Authentication**: None required (public browsing)
+
 ```graphql
-query ListPets {
-  listPets(
-    filter: { status: available }
-    pagination: { first: 10, after: "0" }
-  ) {
+query GetAvailablePets($storeID: UUID!, $pagination: PaginationInput) {
+  availablePets(storeID: $storeID, pagination: $pagination) {
     edges {
       id
       name
       species
       age
+      pictureUrl
+      description
+      breederName
       status
-      breederEmail
+      createdAt
     }
     pageInfo {
       hasNextPage
       hasPreviousPage
+      startCursor
       endCursor
     }
     totalCount
@@ -109,14 +99,147 @@ query ListPets {
 }
 ```
 
-#### 5. Get Specific Pet
+**Variables**:
+```json
+{
+  "storeID": "123e4567-e89b-12d3-a456-426614174000",
+  "pagination": {
+    "first": 10
+  }
+}
+```
+
+## 🔐 Customer Endpoints
+
+These endpoints require customer authentication using Basic HTTP Auth.
+
+### 🛒 Purchase Single Pet
+
+**Mutation**: `purchasePet`
+**Description**: Purchase a single pet immediately
+**Authentication**: Customer credentials required
+
 ```graphql
-query GetPet {
-  getPet(id: "pet-uuid-here") {
+mutation PurchasePet($petID: UUID!) {
+  purchasePet(petID: $petID) {
+    id
+    customerID
+    pets {
+      id
+      name
+      species
+      age
+      pictureUrl
+      description
+      breederName
+    }
+    totalPets
+    createdAt
+  }
+}
+```
+
+### 🛍️ Purchase Multiple Pets
+
+**Mutation**: `purchasePets`
+**Description**: Purchase multiple pets in a single transaction
+**Authentication**: Customer credentials required
+
+```graphql
+mutation PurchasePets($petIDs: [UUID!]!) {
+  purchasePets(petIDs: $petIDs) {
+    id
+    customerID
+    pets {
+      id
+      name
+      species
+      age
+      pictureUrl
+      description
+      breederName
+    }
+    totalPets
+    createdAt
+  }
+}
+```
+
+## 🏪 Merchant Endpoints
+
+These endpoints require merchant authentication and are used for store management.
+
+### 🏗️ Create Store
+
+**Mutation**: `createStore`
+**Description**: Create a new store (one per merchant)
+**Authentication**: Merchant credentials required
+
+```graphql
+mutation CreateStore($input: CreateStoreInput!) {
+  createStore(input: $input) {
+    id
+    name
+    createdAt
+  }
+}
+```
+
+**Variables**:
+```json
+{
+  "input": {
+    "name": "My Pet Store"
+  }
+}
+```
+
+### 📋 List My Pets
+
+**Query**: `listPets`
+**Description**: List all pets in the merchant's store with filtering
+**Authentication**: Merchant credentials required
+
+```graphql
+query ListPets($filter: PetFilterInput, $pagination: PaginationInput) {
+  listPets(filter: $filter, pagination: $pagination) {
+    edges {
+      id
+      name
+      species
+      age
+      pictureUrl
+      description
+      breederName
+      breederEmail
+      status
+      createdAt
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
+  }
+}
+```
+
+### ➕ Add New Pet
+
+**Mutation**: `createPet`
+**Description**: Add a new pet to the store inventory
+**Authentication**: Merchant credentials required
+
+```graphql
+mutation CreatePet($input: CreatePetInput!) {
+  createPet(input: $input) {
     id
     name
     species
     age
+    pictureUrl
     description
     breederName
     breederEmail
@@ -126,59 +249,65 @@ query GetPet {
 }
 ```
 
-#### 6. View Sales Report
-```graphql
-query SoldPets {
-  soldPets(
-    startDate: "2024-01-01T00:00:00Z"
-    endDate: "2024-12-31T23:59:59Z"
-    pagination: { first: 20 }
-  ) {
-    edges {
-      id
-      name
-      species
-      age
-      breederName
-      createdAt
-    }
-    totalCount
+**Variables**:
+```json
+{
+  "input": {
+    "name": "Fluffy",
+    "species": "Cat",
+    "age": 3,
+    "pictureUrl": "https://example.com/fluffy.jpg",
+    "description": "A very fluffy and friendly cat",
+    "breederName": "Best Cat Breeders",
+    "breederEmail": "contact@bestcatbreeders.com"
   }
 }
 ```
 
-#### 7. View Unsold Pets
+### 🔍 Get Pet Details
+
+**Query**: `getPet`
+**Description**: Get detailed information about a specific pet
+**Authentication**: Merchant credentials required
+
 ```graphql
-query UnsoldPets {
-  unsoldPets(pagination: { first: 10 }) {
-    edges {
-      id
-      name
-      species
-      age
-      status
-    }
-    totalCount
+query GetPet($id: UUID!) {
+  getPet(id: $id) {
+    id
+    name
+    species
+    age
+    pictureUrl
+    description
+    breederName
+    breederEmail
+    status
+    createdAt
   }
 }
 ```
 
-#### 8. Delete Pet
+### 🗑️ Delete Pet
+
+**Mutation**: `deletePet`
+**Description**: Remove a pet from the store inventory
+**Authentication**: Merchant credentials required
+
 ```graphql
-mutation DeletePet {
-  deletePet(id: "pet-uuid-here")
+mutation DeletePet($id: UUID!) {
+  deletePet(id: $id)
 }
 ```
 
-### 👥 Customer Operations
+### 📊 View Sold Pets
 
-#### 1. Browse Available Pets
+**Query**: `soldPets`
+**Description**: View pets sold within a specific date range
+**Authentication**: Merchant credentials required
+
 ```graphql
-query AvailablePets {
-  availablePets(
-    storeID: "store-uuid-here"
-    pagination: { first: 10 }
-  ) {
+query SoldPets($startDate: Time!, $endDate: Time!, $pagination: PaginationInput) {
+  soldPets(startDate: $startDate, endDate: $endDate, pagination: $pagination) {
     edges {
       id
       name
@@ -187,10 +316,14 @@ query AvailablePets {
       pictureUrl
       description
       breederName
-      # breederEmail is hidden for customers
+      breederEmail
+      status
+      createdAt
     }
     pageInfo {
       hasNextPage
+      hasPreviousPage
+      startCursor
       endCursor
     }
     totalCount
@@ -198,172 +331,228 @@ query AvailablePets {
 }
 ```
 
-#### 2. Get Store Information
-```graphql
-query GetStore {
-  getStoreByID(id: "store-uuid-here") {
-    id
-    name
-    createdAt
-  }
-}
-```
+### 📦 View Unsold Pets
 
-#### 3. Purchase Single Pet
+**Query**: `unsoldPets`
+**Description**: View all currently available pets in the store
+**Authentication**: Merchant credentials required
+
 ```graphql
-mutation PurchasePet {
-  purchasePet(petID: "pet-uuid-here") {
-    id
-    customerID
-    pets {
+query UnsoldPets($pagination: PaginationInput) {
+  unsoldPets(pagination: $pagination) {
+    edges {
       id
       name
       species
+      age
+      pictureUrl
+      description
+      breederName
+      breederEmail
+      status
+      createdAt
     }
-    totalPets
-    createdAt
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      startCursor
+      endCursor
+    }
+    totalCount
   }
 }
 ```
 
-#### 4. Purchase Multiple Pets
+## 🔧 Types & Schemas
+
+### Pet Species Enum
 ```graphql
-mutation PurchasePets {
-  purchasePets(petIDs: ["pet-uuid-1", "pet-uuid-2"]) {
-    id
-    customerID
-    pets {
-      id
-      name
-      species
+enum PetSpecies {
+  Cat
+  Dog
+  Frog
+}
+```
+
+### Pet Status Enum
+```graphql
+enum PetStatus {
+  available
+  sold
+}
+```
+
+### Pagination Input
+```graphql
+input PaginationInput {
+  first: Int
+  after: String
+  last: Int
+  before: String
+}
+```
+
+### Pet Filter Input
+```graphql
+input PetFilterInput {
+  status: PetStatus
+  startDate: Time
+  endDate: Time
+}
+```
+
+### Create Pet Input
+```graphql
+input CreatePetInput {
+  name: String!
+  species: PetSpecies!
+  age: Int!
+  pictureUrl: String
+  description: String
+  breederName: String!
+  breederEmail: String!
+}
+```
+
+### Create Store Input
+```graphql
+input CreateStoreInput {
+  name: String!
+}
+```
+
+## 🔑 Authentication
+
+The API uses Basic HTTP Authentication with role-based access:
+
+### Merchant Authentication
+```bash
+Authorization: Basic <base64(username:password)>
+```
+
+**Example**:
+```bash
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Basic $(echo -n 'merchant1:merchant123' | base64)" \
+  -d '{"query": "query { myStore { id name } }"}'
+```
+
+### Customer Authentication
+```bash
+Authorization: Basic <base64(username:password)>
+```
+
+**Example**:
+```bash
+curl -X POST http://localhost:8080/graphql \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Basic $(echo -n 'customer1:customer123' | base64)" \
+  -d '{"query": "mutation { purchasePet(petID: \"pet-id\") { id } }"}'
+```
+
+## 📝 Error Handling
+
+### GraphQL Errors
+Errors are returned in the standard GraphQL format:
+
+```json
+{
+  "errors": [
+    {
+      "message": "Pet not found",
+      "path": ["getPet"],
+      "extensions": {
+        "code": "NOT_FOUND"
+      }
     }
-    totalPets
-    createdAt
-  }
+  ],
+  "data": null
 }
 ```
 
-## 🎯 Complete Workflow Examples
-
-### Merchant Workflow
-```graphql
-# 1. First, create a store
-mutation { createStore(input: { name: "Fluffy Friends Store" }) { id name } }
-
-# 2. Add some pets
-mutation { 
-  createPet(input: { 
-    name: "Whiskers", species: Cat, age: 1, 
-    breederName: "Alice", breederEmail: "alice@breeders.com" 
-  }) { id name } 
-}
-
-# 3. Check your store and pets
-query { myStore { id name } }
-query { listPets { edges { id name status } totalCount } }
-
-# 4. View sales in date range
-query { 
-  soldPets(startDate: "2024-01-01T00:00:00Z", endDate: "2024-12-31T23:59:59Z") { 
-    edges { id name } 
-    totalCount 
-  } 
-}
-```
-
-### Customer Workflow
-```graphql
-# 1. Find a store (you'll need the store UUID from merchant)
-query { getStoreByID(id: "store-uuid") { id name } }
-
-# 2. Browse available pets
-query { 
-  availablePets(storeID: "store-uuid", pagination: { first: 5 }) { 
-    edges { id name species age description } 
-  } 
-}
-
-# 3. Purchase a pet
-mutation { 
-  purchasePet(petID: "pet-uuid") { 
-    id customerID totalPets 
-    pets { id name } 
-  } 
-}
-```
+### Common Error Types
+- **Authentication Required**: `401 Unauthorized`
+- **Forbidden**: `403 Forbidden` (wrong role)
+- **Validation Error**: GraphQL validation errors
+- **Not Found**: Resource not found errors
+- **Conflict**: Resource already exists
 
 ## 🧪 Testing with Postman
 
-Import the included Postman collection: `Pet-Store-API.postman_collection.json`
+1. **Import Collection**: Import `Pet-Store-API.postman_collection.json`
+2. **Import Environment**: Import `Pet-Store-Environment.postman_environment.json`
+3. **Set Variables**: Update environment variables as needed
+4. **Run Requests**: Execute requests in logical order
 
-**Setup Variables:**
-- `base_url`: `http://localhost:8080`
+### Test Data
+The system includes seed data with:
+- 1 store: "Pet Paradise Store"
+- 11 pets with various species (cats, dogs, frogs)
+- Mix of pets with and without pictures
 
-**Authentication:**
-- Set to Basic Auth with merchant1/merchant123 or customer1/customer123
+## 🔄 Recent API Changes
+
+### Removed Endpoints
+- ❌ `getStoreByID` - Replaced with `listStores` for better efficiency
+
+### Enhanced Endpoints
+- ✅ `listStores` - Now public endpoint for store selection
+- ✅ `availablePets` - Public browsing without authentication
+
+### Added Features
+- ✅ Public access to store listings and pet browsing
+- ✅ Enhanced error messages and validation
+- ✅ Better pagination support
 
 ## 🛠️ Development
 
 ### Local Development Setup
 ```bash
 # Install dependencies
-make deps
-
-# Install development tools
-make install-tools
+go mod download
 
 # Start only database services
 docker-compose up -d postgres redis
 
-# Run locally
-make build
-./bin/server
+# Set environment variables
+export DB_HOST=localhost
+export REDIS_HOST=localhost
 
-# Or use development mode
-make dev
+# Run the server
+go run cmd/server/main.go
 ```
 
 ### Available Commands
 ```bash
-make help              # Show all available commands
-make build             # Build the application
-make test              # Run all tests
-make test-coverage     # Run tests with coverage
-make fmt               # Format code
-make check             # Run all quality checks
-make docker-up         # Start with Docker
-make docker-down       # Stop services
-make clean             # Clean up
+# Run tests
+go test ./...
+
+# Run specific test suites
+go test ./internal/service -v
+go test ./internal/repository -v
+
+# Generate GraphQL code
+go generate ./internal/graph
+
+# Build the application
+go build -o bin/server cmd/server/main.go
+
+# Force re-run migrations (if needed)
+docker-compose exec backend /app/main migrate
 ```
 
 ### Testing
 ```bash
 # Unit tests
-make test-unit
+go test ./internal/service/...
+
+# Integration tests
+go test ./internal/repository/...
 
 # With coverage
-make test-coverage
-
-# Integration tests (requires test DB)
-make test-integration
+go test -cover ./...
 ```
-
-## 📊 API Schema Overview
-
-### Types
-- **Pet**: Core entity with species (Cat/Dog/Frog), status (available/sold)
-- **Store**: Merchant's store with pets
-- **Order**: Purchase record with customer and pets
-- **PetConnection**: Paginated pet results
-
-### Key Features
-- **Pagination**: Cursor-based pagination for all list operations
-- **Filtering**: Filter pets by status, date range
-- **Authentication**: Role-based access (merchant vs customer)
-- **Data Privacy**: Breeder emails hidden from customers
-- **Validation**: Input validation for all operations
-- **Caching**: Redis caching for performance
-- **Encryption**: Breeder emails encrypted at rest
 
 ## 🏗️ Architecture
 
@@ -378,6 +567,14 @@ make test-integration
     │ Middleware│         │             │         │ Database    │
     └──────────┘         └──────────────┘         └─────────────┘
 ```
+
+### Backend Stack
+- **Language**: Go 1.24
+- **API**: GraphQL with gqlgen
+- **Database**: PostgreSQL 15
+- **Cache**: Redis 7
+- **Authentication**: Basic HTTP Auth with role-based access
+- **Deployment**: Docker containers with multi-stage builds
 
 ## 🔧 Configuration
 
@@ -402,6 +599,40 @@ PORT=8080
 ENV=development
 ```
 
+## 🚀 Development Tools
+
+### GraphQL Playground
+Access the interactive GraphQL Playground at:
+`http://localhost:8080/playground`
+
+Features:
+- Schema documentation
+- Query/mutation autocompletion
+- Real-time query execution
+- Schema introspection
+
+### Schema Introspection
+Get the complete schema programmatically:
+
+```graphql
+query IntrospectionQuery {
+  __schema {
+    types {
+      name
+      kind
+      description
+      fields {
+        name
+        type {
+          name
+          kind
+        }
+      }
+    }
+  }
+}
+```
+
 ## 🐛 Troubleshooting
 
 ### Common Issues
@@ -415,15 +646,14 @@ ENV=development
 
 2. **Database connection issues**
    ```bash
-   # Reset database
-   make db-reset
+   # Check database status
+   docker-compose exec postgres pg_isready
    ```
 
 3. **Port already in use**
    ```bash
    # Stop existing services
    docker-compose down
-   # Or change ports in docker-compose.yml
    ```
 
 ### Health Checks
@@ -438,20 +668,19 @@ docker-compose exec postgres pg_isready
 docker-compose exec redis redis-cli ping
 ```
 
-## 📝 Data Models
+## 📊 System Status
 
-### Pet Species
-- `Cat`
-- `Dog` 
-- `Frog`
+| Service | Status | Port | Health Check |
+|---------|--------|------|--------------|
+| Backend API | ✅ Running | 8080 | http://localhost:8080/health |
+| PostgreSQL | ✅ Running | 5432 | Container health check |
+| Redis | ✅ Running | 6379 | Container health check |
+| GraphQL Playground | ✅ Running | 8080 | http://localhost:8080/playground |
 
-### Pet Status
-- `available` - Can be purchased
-- `sold` - Already purchased
+## 📞 Support
 
-### Validation Rules
-- Pet names: 1-100 characters
-- Pet age: 0-50 years
-- Store names: 1-100 characters
-- Email format validation
-- Maximum 10 pets per order
+For API issues or questions:
+1. Check the GraphQL Playground for schema documentation
+2. Review error messages in the response
+3. Check authentication credentials and permissions
+4. Ensure all required variables are provided

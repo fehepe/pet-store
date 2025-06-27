@@ -1,46 +1,289 @@
-# Getting Started with Create React App
+# 🌐 Pet Store Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern React TypeScript application providing a customer-facing interface for the Pet Store system.
 
-## Available Scripts
+## 🎯 Overview
 
-In the project directory, you can run:
+This frontend application provides an intuitive interface for customers to browse and purchase pets from different stores. Built with React 18, TypeScript, and Material-UI, it offers a responsive and professional user experience.
 
-### `npm start`
+## ✨ Features
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 🏪 Store Management
+- **Store Selection**: User-friendly dropdown populated from backend API
+- **Dynamic Loading**: Stores fetched in real-time from `listStores` endpoint
+- **No Manual Entry**: Eliminated error-prone UUID input
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+### 🐾 Pet Browsing  
+- **Grid Display**: Responsive grid layout showing available pets
+- **Rich Information**: Name, species, age, description, and breeder details
+- **Image Handling**: 
+  - Custom pet images when available
+  - Species-specific default images (cats, dogs, frogs)
+  - Fallback images from Unsplash
 
-### `npm test`
+### 🛒 Shopping Experience
+- **Instant Purchase**: One-click "Buy Now" functionality
+- **Shopping Cart**: Add multiple pets for bulk checkout
+- **Smart Validation**: 
+  - Prevents adding pets already in cart
+  - Visual feedback with disabled buttons and tooltips
+  - "In Cart" status indication
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### 🎨 User Interface
+- **Material-UI Components**: Professional, accessible design system
+- **Responsive Design**: Works on desktop, tablet, and mobile
+- **Dark/Light Theme**: Consistent theming across components
+- **Loading States**: Proper loading indicators and error handling
+- **Toast Notifications**: Success and error feedback
 
-### `npm run build`
+## 🏗️ Architecture
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Technology Stack
+```
+React 18.2.0          # UI framework
+TypeScript 4.9.5      # Type safety
+Material-UI 5.14.15   # Component library
+Apollo Client 3.8.6   # GraphQL client
+React Hook Form 7.47.0 # Form management
+React Router 6.17.0   # Navigation (if routing added)
+```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### Project Structure
+```
+src/
+├── components/          # React components
+│   ├── Layout.tsx      # Main layout wrapper
+│   ├── Login.tsx       # Store selection and authentication  
+│   ├── PetList.tsx     # Pet grid display with pagination
+│   ├── PetCard.tsx     # Individual pet card component
+│   ├── Cart.tsx        # Shopping cart sidebar
+│   └── ProtectedRoute.tsx # Authentication guard
+├── contexts/           # React Context providers
+│   ├── AuthContext.tsx # Authentication state management
+│   └── CartContext.tsx # Shopping cart state management
+├── graphql/           # GraphQL queries and mutations
+│   └── queries.ts     # All GraphQL operations
+├── config/            # Configuration
+│   └── apollo.ts      # Apollo Client setup
+├── types/             # TypeScript definitions
+│   └── index.ts       # Shared type definitions
+├── theme.ts           # Material-UI theme configuration
+├── App.tsx            # Main application component
+└── index.tsx          # Application entry point
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### State Management
+The application uses React Context API for state management:
 
-### `npm run eject`
+**AuthContext** - Manages authentication state:
+```typescript
+interface AuthContextType {
+  user: string | null;
+  storeId: string | null;
+  login: (username: string, storeId: string) => void;
+  logout: () => void;
+  loading: boolean;
+}
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+**CartContext** - Manages shopping cart:
+```typescript
+interface CartContextType {
+  cartItems: Pet[];
+  addToCart: (pet: Pet) => void;
+  removeFromCart: (petId: string) => void;
+  clearCart: () => void;
+  isInCart: (petId: string) => boolean;
+}
+```
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## 🔌 API Integration
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### GraphQL Operations
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+**Store Selection:**
+```typescript
+const LIST_STORES = gql`
+  query ListStores {
+    listStores {
+      id
+      name
+      createdAt
+    }
+  }
+`;
+```
 
-## Learn More
+**Pet Browsing:**
+```typescript
+const GET_AVAILABLE_PETS = gql`
+  query GetAvailablePets($storeID: UUID!, $pagination: PaginationInput) {
+    availablePets(storeID: $storeID, pagination: $pagination) {
+      edges { ...PetFields }
+      pageInfo { hasNextPage endCursor }
+      totalCount
+    }
+  }
+`;
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+**Pet Purchase:**
+```typescript
+const PURCHASE_PET = gql`
+  mutation PurchasePet($petID: UUID!) {
+    purchasePet(petID: $petID) {
+      id
+      pets { ...PetFields }
+      totalPets
+    }
+  }
+`;
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Apollo Client Configuration
+```typescript
+const client = new ApolloClient({
+  uri: process.env.REACT_APP_GRAPHQL_ENDPOINT || 'http://localhost:8080/graphql',
+  cache: new InMemoryCache({
+    typePolicies: {
+      PetConnection: {
+        fields: {
+          edges: {
+            merge: (existing = [], incoming = []) => [...existing, ...incoming]
+          }
+        }
+      }
+    }
+  }),
+  defaultOptions: {
+    watchQuery: { errorPolicy: 'all' },
+    query: { errorPolicy: 'all' }
+  }
+});
+```
+
+## 🚀 Development
+
+### Prerequisites
+- Node.js 18+
+- npm or yarn
+
+### Local Development
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+
+# Open browser to http://localhost:3000
+```
+
+### Available Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm start` | Start development server with hot reload |
+| `npm build` | Create production build |
+| `npm test` | Run test suite |
+| `npm eject` | Eject from Create React App (one-way) |
+
+### Environment Variables
+Create `.env` file in frontend root:
+```bash
+REACT_APP_GRAPHQL_ENDPOINT=http://localhost:8080/graphql
+REACT_APP_API_URL=http://localhost:8080
+```
+
+## 🐳 Docker Deployment
+
+### Development
+```bash
+# Run with backend services
+docker-compose up -d
+```
+
+### Production Build
+```dockerfile
+FROM node:18-alpine as build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci --silent
+COPY . .
+RUN npm run build
+
+FROM nginx:alpine
+COPY --from=build /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 3000
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+## 🎨 Styling & Theming
+
+### Material-UI Theme
+```typescript
+const theme = createTheme({
+  palette: {
+    primary: { main: '#1976d2' },
+    secondary: { main: '#dc004e' }
+  },
+  typography: {
+    fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif'
+  },
+  components: {
+    MuiButton: {
+      styleOverrides: {
+        root: { textTransform: 'none' }
+      }
+    }
+  }
+});
+```
+
+## 📱 User Experience
+
+### Navigation Flow
+1. **Landing** → Login page with store selection
+2. **Store Selection** → Dropdown populated from API  
+3. **Pet Browsing** → Grid of available pets with pagination
+4. **Purchase Options** → Instant buy or add to cart
+5. **Checkout** → Review and confirm purchase
+
+## 🧪 Testing
+
+### Test Structure
+```bash
+# Run all tests
+npm test
+
+# Run with coverage
+npm test -- --coverage
+
+# Run specific tests  
+npm test -- --testNamePattern="PetCard"
+```
+
+### Testing Libraries
+- **Jest**: Test runner and assertions
+- **React Testing Library**: Component testing
+- **Apollo MockedProvider**: GraphQL mocking
+- **MSW**: API mocking for integration tests
+
+## 🚀 Deployment
+
+### Nginx Configuration
+```nginx
+server {
+    listen 3000;
+    location / {
+        root /usr/share/nginx/html;
+        index index.html index.htm;
+        try_files $uri $uri/ /index.html;
+    }
+    
+    location /api {
+        proxy_pass http://backend:8080;
+    }
+}
+```

@@ -1,119 +1,191 @@
-# 🐾 Pet Store
+# 🐾 Pet Store Application
 
-A complete pet store management system with GraphQL API backend built with Go, PostgreSQL, Redis, and a React TypeScript frontend.
+A complete pet store management system featuring a GraphQL API backend built with Go and a modern React TypeScript frontend.
+
+## 🌟 Features
+
+### ✨ Frontend Features
+- **Store Selection**: Dropdown populated from API instead of manual UUID entry
+- **Pet Browsing**: View available pets with professional Material-UI design
+- **Default Images**: Species-specific default images for pets without pictures
+- **Shopping Cart**: Add pets to cart with validation to prevent duplicates
+- **Instant Purchase**: Buy pets immediately or checkout multiple pets from cart
+- **Real-time Updates**: Live inventory updates and error handling
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+
+### 🔧 Backend Features  
+- **GraphQL API**: Modern API with schema-first development
+- **Store Management**: Create and manage pet stores
+- **Pet Inventory**: Full CRUD operations for pet management
+- **Order Processing**: Handle individual and bulk pet purchases
+- **Public Endpoints**: Store listing and pet browsing without authentication
+- **Data Caching**: Redis integration for improved performance
+- **Database Migrations**: Automated schema management with seed data
 
 ## 📁 Project Structure
 
 ```
 pet-store/
-├── backend/           # GraphQL API service
-│   ├── cmd/          # Application entrypoints
-│   ├── internal/     # Private application code
-│   │   ├── graph/    # GraphQL schema and resolvers
-│   │   ├── service/  # Business logic layer
-│   │   ├── repository/ # Data access layer
-│   │   ├── models/   # Domain models
-│   │   └── auth/     # Authentication middleware
-│   └── pkg/          # Public libraries
-├── frontend/         # React TypeScript application
+├── backend/              # Go GraphQL API service
+│   ├── cmd/server/      # Application entry point
+│   ├── internal/
+│   │   ├── graph/       # GraphQL schema, resolvers, and generated code
+│   │   ├── service/     # Business logic layer
+│   │   ├── repository/  # Data access layer  
+│   │   ├── models/      # Domain models and types
+│   │   ├── auth/        # Authentication middleware
+│   │   ├── database/    # Database connections and migrations
+│   │   ├── cache/       # Redis caching layer
+│   │   └── mocks/       # Test mocks
+│   ├── Dockerfile       # Backend container configuration
+│   └── go.mod          # Go dependencies
+├── frontend/            # React TypeScript application
 │   ├── src/
-│   │   ├── components/  # React components
-│   │   ├── contexts/    # Context providers (Auth, Cart)
+│   │   ├── components/  # React components (Login, PetList, Cart, etc.)
+│   │   ├── contexts/    # React Context (Auth, Cart state management)
 │   │   ├── graphql/     # GraphQL queries and mutations
+│   │   ├── config/      # Apollo Client configuration
 │   │   └── types/       # TypeScript type definitions
-│   └── public/
-├── docker-compose.yml # Multi-service orchestration
-└── Makefile          # Project automation
+│   ├── Dockerfile       # Frontend container configuration
+│   ├── nginx.conf       # Production web server configuration
+│   └── package.json     # Node.js dependencies
+├── docker-compose.yml   # Multi-service orchestration
+└── fullstack-challenge-md.md  # Original requirements
 ```
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Docker & Docker Compose
-- Go 1.23+ (for local development)
+- Git
 
 ### Start the Application
 ```bash
-# Clone and start all services
+# Clone the repository
 git clone https://github.com/fehepe/pet-store
 cd pet-store
+
+# Start all services (PostgreSQL, Redis, Backend, Frontend)
 docker-compose up -d
 
-# Verify services are running
+# Verify all services are healthy
 docker-compose ps
 ```
 
-### Access Points
-- **Frontend Application**: http://localhost:3000
-- **GraphQL Playground**: http://localhost:8080/playground
-- **GraphQL API**: http://localhost:8080/graphql
-- **Health Check**: http://localhost:8080/health
+### Access the Application
+- **🌐 Frontend**: http://localhost:3000
+- **🔍 GraphQL Playground**: http://localhost:8080/playground  
+- **📡 GraphQL API**: http://localhost:8080/graphql
 
-## 🏗️ Services
+## 🎯 How to Use
 
-### Frontend Service
-- **Technology**: React with TypeScript
-- **Features**:
-  - Customer authentication
-  - Browse available pets by store
-  - Instant purchase functionality
-  - Shopping cart management
-  - Bulk checkout
-  - Real-time error handling
-  - Responsive design with Material-UI
-- **Port**: 3000
+### Customer Experience
+1. **Access**: Navigate to http://localhost:3000
+2. **Login**: Select a store from the dropdown (no authentication required for demo)
+3. **Browse**: View available pets with images and descriptions
+4. **Purchase Options**:
+   - **Instant Buy**: Click "Buy Now" for immediate purchase
+   - **Cart Checkout**: Add multiple pets to cart and checkout together
+5. **Validation**: System prevents adding pets already in cart
 
-### Backend Service
-- **Technology**: Go with GraphQL
-- **Features**: 
-  - Pet inventory management
-  - Store management
-  - Customer orders
-  - Role-based authentication (Merchant/Customer)
-  - Data caching with Redis
-  - Encrypted sensitive data
-- **Port**: 8080
+### API Testing
+Use GraphQL Playground at http://localhost:8080/playground:
 
-### Database Services
-- **PostgreSQL**: Primary data storage (Port 5432)
-- **Redis**: Caching and session management (Port 6379)
+```graphql
+# List all available stores
+query {
+  listStores {
+    id
+    name
+    createdAt
+  }
+}
 
-## 📚 Documentation
-
-For detailed API documentation, authentication, and usage examples, see the [backend documentation](./backend/README.md).
-
-## 🎯 Usage
-
-### Customer Flow
-1. Navigate to http://localhost:3000
-2. Login with any username/password and a valid Store ID
-3. Browse available pets
-4. Either:
-   - Click "Buy Now" for instant purchase
-   - Add pets to cart and checkout multiple pets at once
-5. View purchase confirmations
-
-### Merchant Flow (API Only)
-Use the GraphQL Playground at http://localhost:8080/playground with merchant credentials to:
-- Create and manage stores
-- Add/remove pets from inventory
-- View sold and unsold pets
-- Track sales by date range
-
-## 🛠️ Development
-
-```bash
-# Build and test
-make build
-make test
-
-# Development with hot reload
-make dev
-
-# Stop all services
-docker-compose down
+# Browse available pets in a store  
+query {
+  availablePets(storeID: "123e4567-e89b-12d3-a456-426614174000", pagination: { first: 10 }) {
+    edges {
+      id
+      name
+      species
+      age
+      pictureUrl
+      description
+      breederName
+    }
+    totalCount
+  }
+}
 ```
 
-## 🔧 Configuration
+## 🏗️ Architecture
 
-Environment variables are configured in `docker-compose.yml` and can be customized in `backend/.env` for local development.
+### Backend Stack
+- **Language**: Go 1.24
+- **API**: GraphQL with gqlgen
+- **Database**: PostgreSQL 15
+- **Cache**: Redis 7
+- **Authentication**: Basic HTTP Auth with role-based access
+- **Deployment**: Docker containers with multi-stage builds
+
+### Frontend Stack  
+- **Framework**: React 18 with TypeScript
+- **GraphQL Client**: Apollo Client with caching
+- **UI Library**: Material-UI (MUI) v5
+- **State Management**: React Context API
+- **Form Handling**: React Hook Form
+- **Build Tool**: Create React App
+- **Web Server**: Nginx (production)
+
+### Data Model
+```
+Store (1) ←→ (N) Pet
+Pet (N) ←→ (N) Order (via OrderPets junction)
+```
+
+## 🧪 Testing
+
+### Run Backend Tests
+```bash
+# Run all tests
+cd backend && go test ./...
+
+# Run specific test suites
+go test ./internal/service -v
+go test ./internal/repository -v  
+go test ./internal/validation -v
+```
+
+### Test Coverage
+- ✅ Store service tests (Create, GetByOwnerID, ListAllStores)
+- ✅ Pet service tests with store relationships
+- ✅ Order service tests with validation
+- ✅ Validation tests for all input types
+- ✅ Error handling tests
+
+## 🚀 Deployment
+
+### Production Build
+```bash
+# Build optimized containers
+docker-compose build
+
+# Production deployment
+docker-compose -f docker-compose.yml up -d
+```
+
+### Environment Configuration
+The system uses environment variables configured in `docker-compose.yml`:
+- Database connection settings
+- Redis configuration  
+- Authentication settings
+- CORS policies
+
+## 📊 System Status
+
+| Service | Status | Port | Health Check |
+|---------|--------|------|--------------|
+| Frontend | ✅ Running | 3000 | http://localhost:3000 |
+| Backend | ✅ Running | 8080 | GraphQL Playground |
+| PostgreSQL | ✅ Running | 5432 | Container health check |
+| Redis | ✅ Running | 6379 | Container health check |

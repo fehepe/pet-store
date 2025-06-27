@@ -206,45 +206,44 @@ func TestStoreService_GetStoreByOwnerID(t *testing.T) {
 	}
 }
 
-func TestStoreService_GetStoreByID(t *testing.T) {
+func TestStoreService_ListAllStores(t *testing.T) {
 	tests := []struct {
 		name    string
 		wantErr bool
-		setup   func(*mocks.MockStoreRepository, *mocks.MockCache, uuid.UUID)
+		setup   func(*mocks.MockStoreRepository, *mocks.MockCache)
 	}{
 		{
-			name:    "successful retrieval from cache",
+			name:    "successful retrieval of multiple stores",
 			wantErr: false,
-			setup: func(repo *mocks.MockStoreRepository, cache *mocks.MockCache, storeID uuid.UUID) {
-				// Mock cache hit with actual store data
-				cache.On("Get", mock.Anything, mock.Anything, mock.Anything).Run(func(args mock.Arguments) {
-					store := args[2].(*models.Store)
-					store.ID = storeID
-					store.Name = "Cached Store"
-					store.OwnerID = "owner123"
-				}).Return(nil)
-			},
-		},
-		{
-			name:    "successful retrieval from repository",
-			wantErr: false,
-			setup: func(repo *mocks.MockStoreRepository, cache *mocks.MockCache, storeID uuid.UUID) {
-				expectedStore := &models.Store{
-					ID:      storeID,
-					Name:    "Pet Paradise",
-					OwnerID: "owner123",
+			setup: func(repo *mocks.MockStoreRepository, cache *mocks.MockCache) {
+				expectedStores := []*models.Store{
+					{
+						ID:      uuid.New(),
+						Name:    "Pet Paradise",
+						OwnerID: "owner1",
+					},
+					{
+						ID:      uuid.New(),
+						Name:    "Animal Kingdom",
+						OwnerID: "owner2",
+					},
 				}
-				cache.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(sql.ErrNoRows) // Cache miss
-				repo.On("GetByID", mock.Anything, storeID).Return(expectedStore, nil)
-				cache.On("Set", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+				repo.On("ListAll", mock.Anything).Return(expectedStores, nil)
 			},
 		},
 		{
-			name:    "store not found",
+			name:    "successful retrieval of empty list",
+			wantErr: false,
+			setup: func(repo *mocks.MockStoreRepository, cache *mocks.MockCache) {
+				expectedStores := []*models.Store{}
+				repo.On("ListAll", mock.Anything).Return(expectedStores, nil)
+			},
+		},
+		{
+			name:    "repository error",
 			wantErr: true,
-			setup: func(repo *mocks.MockStoreRepository, cache *mocks.MockCache, storeID uuid.UUID) {
-				cache.On("Get", mock.Anything, mock.Anything, mock.Anything).Return(sql.ErrNoRows) // Cache miss
-				repo.On("GetByID", mock.Anything, storeID).Return(nil, assert.AnError)
+			setup: func(repo *mocks.MockStoreRepository, cache *mocks.MockCache) {
+				repo.On("ListAll", mock.Anything).Return(nil, assert.AnError)
 			},
 		},
 	}
@@ -253,21 +252,19 @@ func TestStoreService_GetStoreByID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			mockRepo := new(mocks.MockStoreRepository)
 			mockCache := new(mocks.MockCache)
-			storeID := uuid.New()
 
-			tt.setup(mockRepo, mockCache, storeID)
+			tt.setup(mockRepo, mockCache)
 
 			service := NewStoreService(mockRepo, mockCache)
 
-			store, err := service.GetStoreByID(context.Background(), storeID)
+			stores, err := service.ListAllStores(context.Background())
 
 			if tt.wantErr {
 				assert.Error(t, err)
-				assert.Nil(t, store)
+				assert.Nil(t, stores)
 			} else {
 				assert.NoError(t, err)
-				assert.NotNil(t, store)
-				assert.Equal(t, storeID, store.ID)
+				assert.NotNil(t, stores)
 			}
 
 			mockRepo.AssertExpectations(t)

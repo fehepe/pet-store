@@ -9,11 +9,11 @@ VALUES (
     CURRENT_TIMESTAMP
 ) ON CONFLICT (owner_id) DO NOTHING;
 
--- Insert sample pets with images
+-- Insert sample pets with images using fixed IDs to prevent duplicates
 INSERT INTO pets (id, store_id, name, species, age, picture_url, description, breeder_name, breeder_email_encrypted, status, created_at) VALUES
 -- Cats
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440001',
     '123e4567-e89b-12d3-a456-426614174000',
     'Luna',
     'Cat',
@@ -26,7 +26,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     CURRENT_TIMESTAMP - INTERVAL '1 day'
 ),
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440002',
     '123e4567-e89b-12d3-a456-426614174000',
     'Milo',
     'Cat',
@@ -39,7 +39,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     CURRENT_TIMESTAMP - INTERVAL '2 hours'
 ),
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440003',
     '123e4567-e89b-12d3-a456-426614174000',
     'Shadow',
     'Cat',
@@ -54,7 +54,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
 
 -- Dogs
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440004',
     '123e4567-e89b-12d3-a456-426614174000',
     'Max',
     'Dog',
@@ -67,7 +67,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     CURRENT_TIMESTAMP - INTERVAL '3 hours'
 ),
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440005',
     '123e4567-e89b-12d3-a456-426614174000',
     'Bella',
     'Dog',
@@ -80,7 +80,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     CURRENT_TIMESTAMP - INTERVAL '5 hours'
 ),
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440006',
     '123e4567-e89b-12d3-a456-426614174000',
     'Rocky',
     'Dog',
@@ -95,7 +95,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
 
 -- Frogs
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440007',
     '123e4567-e89b-12d3-a456-426614174000',
     'Kermit',
     'Frog',
@@ -108,7 +108,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     CURRENT_TIMESTAMP - INTERVAL '4 hours'
 ),
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440008',
     '123e4567-e89b-12d3-a456-426614174000',
     'Lily',
     'Frog',
@@ -121,8 +121,9 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     CURRENT_TIMESTAMP - INTERVAL '7 hours'
 ),
 
+-- More pets without images
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440009',
     '123e4567-e89b-12d3-a456-426614174000',
     'Snowball',
     'Cat',
@@ -135,7 +136,7 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     CURRENT_TIMESTAMP - INTERVAL '1 hour'
 ),
 (
-    gen_random_uuid(),
+    '550e8400-e29b-41d4-a716-446655440010',
     '123e4567-e89b-12d3-a456-426614174000',
     'Buddy',
     'Dog',
@@ -146,4 +147,4 @@ INSERT INTO pets (id, store_id, name, species, age, picture_url, description, br
     'encrypted_email_data_here',
     'available',
     CURRENT_TIMESTAMP - INTERVAL '30 minutes'
-);
+) ON CONFLICT (id) DO NOTHING;

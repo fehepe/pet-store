@@ -39,21 +39,6 @@ func (r *Resolver) Mutation() MutationResolver {
 	return r
 }
 
-// Query resolvers
-
-func (r *Resolver) MyStore(ctx context.Context) (*model.Store, error) {
-	store, err := r.getStoreForMerchant(ctx)
-	if err != nil {
-		return nil, err
-	}
-
-	return &model.Store{
-		ID:        store.ID,
-		Name:      store.Name,
-		CreatedAt: store.CreatedAt,
-	}, nil
-}
-
 func (r *Resolver) ListPets(ctx context.Context, filter *model.PetFilterInput, pagination *model.PaginationInput) (*model.PetConnection, error) {
 	store, err := r.getStoreForMerchant(ctx)
 	if err != nil {
@@ -187,7 +172,6 @@ func (r *Resolver) AvailablePets(ctx context.Context, storeID uuid.UUID, paginat
 		TotalCount: int32(totalCount),
 	}, nil
 }
-
 
 func (r *Resolver) ListStores(ctx context.Context) ([]*model.Store, error) {
 	stores, err := r.storeService.ListAllStores(ctx)

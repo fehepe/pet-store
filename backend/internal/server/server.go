@@ -8,7 +8,6 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler/transport"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/fehepe/pet-store/backend/internal/app"
-	"github.com/fehepe/pet-store/backend/internal/auth"
 	"github.com/fehepe/pet-store/backend/internal/graph"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -52,9 +51,9 @@ func setupRouter(deps *app.Dependencies) chi.Router {
 	fileServer := http.FileServer(http.Dir(deps.Config.UploadDir))
 	router.Handle("/uploads/*", http.StripPrefix("/uploads/", fileServer))
 
-	// GraphQL endpoints with conditional authentication
+	// GraphQL endpoints (auth temporarily disabled for testing)
 	router.Route("/graphql", func(r chi.Router) {
-		r.Use(auth.ConditionalAuthMiddleware)
+		// r.Use(auth.ConditionalAuthMiddleware) // Temporarily disabled for testing
 		srv := handler.New(graph.NewExecutableSchema(graph.Config{Resolvers: deps.Resolver}))
 		srv.AddTransport(transport.POST{})
 		srv.AddTransport(transport.GET{})

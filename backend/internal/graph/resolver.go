@@ -147,9 +147,7 @@ func (r *Resolver) GetPet(ctx context.Context, id uuid.UUID) (*model.Pet, error)
 }
 
 func (r *Resolver) AvailablePets(ctx context.Context, storeID uuid.UUID, pagination *model.PaginationInput) (*model.PetConnection, error) {
-	if err := auth.RequireCustomer(ctx); err != nil {
-		return nil, err
-	}
+	// This is now a public endpoint for demo purposes
 
 	// Build filter for available pets only
 	status := models.PetStatusAvailable

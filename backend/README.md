@@ -122,3 +122,16 @@ go generate ./internal/graph
 - PostgreSQL 15
 - Redis 7
 - Docker
+
+## Postman Screenshots
+![Screenshot 2025-06-27 at 1 15 03 AM](https://github.com/user-attachments/assets/2c2e0d84-5f0c-4414-8d08-b7c2df215fad)
+![Screenshot 2025-06-27 at 1 15 15 AM](https://github.com/user-attachments/assets/373e0c9c-7911-454d-91d0-02a6bff7b6ca)
+![Screenshot 2025-06-27 at 1 15 35 AM](https://github.com/user-attachments/assets/7e8a1afa-cbd1-4281-8ec9-b69ad6bf4c2c)
+![Screenshot 2025-06-27 at 1 16 45 AM](https://github.com/user-attachments/assets/5c69c256-388a-452d-9c47-4122c1773c77)
+![Screenshot 2025-06-27 at 1 16 58 AM](https://github.com/user-attachments/assets/381a25aa-7025-4015-975e-980480eadcbf)
+![Screenshot 2025-06-27 at 1 17 12 AM](https://github.com/user-attachments/assets/db64341b-f1a8-4ae4-9d74-b7afc9e41f7a)
+![Screenshot 2025-06-27 at 1 17 33 AM](https://github.com/user-attachments/assets/fb5cb778-8042-4b2b-965e-ade23264b448)
+![Screenshot 2025-06-27 at 1 17 53 AM](https://github.com/user-attachments/assets/518cd5ac-0d0c-4fd7-b178-76b955ee592f)
+![Screenshot 2025-06-27 at 1 18 05 AM](https://github.com/user-attachments/assets/eb47c00d-210a-407d-a4f5-f67ecdec82d7)
+![Screenshot 2025-06-27 at 1 18 16 AM](https://github.com/user-attachments/assets/a35e120e-5598-4504-9091-8ed43841d15a)
+![Screenshot 2025-06-27 at 1 18 26 AM](https://github.com/user-attachments/assets/4fb1c610-a43c-48e1-8ef6-d56769585634)

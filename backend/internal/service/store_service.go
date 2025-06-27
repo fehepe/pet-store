@@ -18,6 +18,7 @@ import (
 type StoreServiceInterface interface {
 	CreateStore(ctx context.Context, input models.CreateStoreInput) (*models.Store, error)
 	GetStoreByOwnerID(ctx context.Context, ownerID string) (*models.Store, error)
+	ListAllStores(ctx context.Context) ([]*models.Store, error)
 }
 
 // StoreService implements StoreServiceInterface with improved error handling and validation

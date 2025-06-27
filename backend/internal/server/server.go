@@ -1,7 +1,10 @@
 package server
 
 import (
+	"encoding/json"
 	"net/http"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/99designs/gqlgen/graphql/handler"
@@ -48,6 +51,9 @@ func setupRouter(deps *app.Dependencies) chi.Router {
 	router.Use(middleware.Timeout(60 * time.Second))
 	router.Use(CORS())
 
+	// Health check endpoint
+	router.Get("/health", healthCheckHandler())
+
 	// Static file server for uploads (keep for serving uploaded files)
 	fileServer := http.FileServer(http.Dir(deps.Config.UploadDir))
 	router.Handle("/uploads/*", http.StripPrefix("/uploads/", fileServer))
@@ -69,16 +75,32 @@ func setupRouter(deps *app.Dependencies) chi.Router {
 	return router
 }
 
-// CORS returns a middleware that handles CORS headers
+// CORS returns a middleware that handles CORS headers with configurable origins
 func CORS() func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*")
+			// Get allowed origins from environment variable, default to localhost for development
+			allowedOrigins := os.Getenv("CORS_ALLOWED_ORIGINS")
+			if allowedOrigins == "" {
+				allowedOrigins = "http://localhost:3000,http://localhost:3001"
+			}
+
+			origin := r.Header.Get("Origin")
+			if origin != "" {
+				origins := strings.Split(allowedOrigins, ",")
+				for _, allowedOrigin := range origins {
+					if strings.TrimSpace(allowedOrigin) == origin {
+						w.Header().Set("Access-Control-Allow-Origin", origin)
+						break
+					}
+				}
+			}
+
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-			w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
+			w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token, X-Requested-With")
 			w.Header().Set("Access-Control-Expose-Headers", "Link")
 			w.Header().Set("Access-Control-Allow-Credentials", "true")
-			w.Header().Set("Access-Control-Max-Age", "300")
+			w.Header().Set("Access-Control-Max-Age", "86400") // 24 hours
 
 			if r.Method == "OPTIONS" {
 				w.WriteHeader(http.StatusOK)
@@ -87,5 +109,21 @@ func CORS() func(http.Handler) http.Handler {
 
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+// healthCheckHandler returns a simple health check endpoint
+func healthCheckHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		response := map[string]interface{}{
+			"status":    "healthy",
+			"timestamp": time.Now().UTC().Format(time.RFC3339),
+			"service":   "pet-store-backend",
+			"version":   "1.0.0",
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		json.NewEncoder(w).Encode(response)
 	}
 }

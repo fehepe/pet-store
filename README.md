@@ -15,6 +15,13 @@ Full-stack pet store application with GraphQL API backend (Go) and React TypeScr
 ```bash
 git clone https://github.com/fehepe/pet-store
 cd pet-store
+
+# Setup backend environment
+cd backend
+cp .env.example .env
+cd ..
+
+# Start all services
 docker-compose up -d
 ```
 
@@ -25,9 +32,12 @@ docker-compose up -d
 ## Usage
 
 1. Open http://localhost:3000
-2. Select a store from dropdown
-3. Browse pets and add to cart
-4. Purchase instantly or checkout multiple pets
+2. Login with customer credentials:
+   - Username: `customer1`, Password: `customer123`
+   - Username: `customer2`, Password: `customer123`
+3. Select a store from dropdown
+4. Browse pets and add to cart
+5. Purchase instantly or checkout multiple pets
 
 ## Tech Stack
 
